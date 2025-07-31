@@ -13,5 +13,7 @@ export const comptrollerABI = [
 
 // This is the "user manual" for all MToken contracts.
 export const mTokenABI = [
-  "function _setReserveFactor(uint newReserveFactorMantissa)"
+  "function _setReserveFactor(uint newReserveFactorMantissa)",
+  // VVVV  ADD THIS MISSING LINE  VVVV
+  "function _setInterestRateModel(address newInterestRateModel)"
 ];
