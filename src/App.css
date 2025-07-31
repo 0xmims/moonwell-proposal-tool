@@ -166,3 +166,32 @@ hr {
 .title-number-input {
   width: 80px; /* Give the number input a fixed, smaller width */
 }
+
+.helpful-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.link-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  background-color: var(--background-primary);
+  color: var(--color-primary);
+  border: 1px solid var(--border-color);
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
+}
+
+.link-button:hover {
+  background-color: var(--background-secondary);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+body[data-theme='dark'] .link-button:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
