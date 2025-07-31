@@ -51,6 +51,8 @@ README.md
 src/App.css
 src/App.jsx
 src/assets/react.svg
+src/components/ProposalTitleInput.jsx
+src/context/ThemeContext.jsx
 src/contracts/abis.js
 src/contracts/addresses.js
 src/index.css
@@ -65,6 +67,64 @@ vite.config.js
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="src/components/ProposalTitleInput.jsx">
+// src/components/ProposalTitleInput.jsx
+import React, { useState, useEffect } from 'react';
+
+function ProposalTitleInput({ onTitleChange }) {
+  // State to manage the individual pieces of the title
+  const [prefix, setPrefix] = useState('MIP-B');
+  const [number, setNumber] = useState('XX');
+  const [description, setDescription] = useState('Weekly Risk Parameter Updates');
+  
+  // Auto-generate the date string, e.g., (07/2025)
+  const currentDate = new Date();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const year = currentDate.getFullYear();
+  const dateString = `(${month}/${year})`;
+
+  // Whenever a piece of the title changes, reconstruct the full title and send it to the parent
+  useEffect(() => {
+    const fullTitle = `${prefix}${number}: ${description} ${dateString}`;
+    onTitleChange(fullTitle);
+  }, [prefix, number, description, dateString, onTitleChange]);
+
+  return (
+    <div className="proposal-title-builder">
+      <div className="title-prefix-group">
+        {/* The "#" is now static text, not part of the input */}
+        <span className="title-hash">#</span>
+        <select value={prefix} onChange={(e) => setPrefix(e.target.value)}>
+          <option value="MIP-B">MIP-B (Base)</option>
+          <option value="MIP-O">MIP-O (Optimism)</option>
+          <option value="MIP-M">MIP-M (Moonbeam)</option>
+          <option value="MIP-R">MIP-R (Moonriver)</option>
+          <option value="MIP-X">MIP-X (All Networks)</option>
+        </select>
+        <input 
+          type="text" 
+          value={number} 
+          onChange={(e) => setNumber(e.target.value)} 
+          className="title-number-input"
+          placeholder="XX"
+        />
+      </div>
+      <div className="form-group">
+        <label>Description</label>
+        <input 
+          type="text" 
+          value={description} 
+          onChange={(e) => setDescription(e.target.value)} 
+          placeholder="e.g., Anthias Labs Monthly Recommendations"
+        />
+      </div>
+    </div>
+  );
+}
+
+export default ProposalTitleInput;
+</file>
 
 <file path=".gitignore">
 # Logs
@@ -201,39 +261,32 @@ If you are developing a production application, we recommend using TypeScript wi
 </file>
 
 <file path="src/App.css">
-/* src/App.css - UPDATED WITH CSS VARIABLES */
+/* src/App.css - UPGRADED LAYOUT STYLES */
 
 .App {
   display: flex;
   max-width: 1400px;
   margin: 0 auto;
-  background-color: var(--background-primary); /* Use variable */
+  background-color: var(--background-primary);
 }
 
 .sidebar {
   width: 240px;
   flex-shrink: 0;
   padding: 2rem;
-  border-right: 1px solid var(--border-color); /* Use variable */
+  border-right: 1px solid var(--border-color);
   height: 100vh;
   position: sticky;
   top: 0;
-  background-color: var(--background-secondary); /* Use variable */
+  background-color: var(--background-secondary);
+  /* Use flexbox to push the theme toggle to the bottom */
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-header {
   margin-bottom: 2.5rem;
   padding-left: 10px;
-}
-
-/* Add styles for the theme toggle button */
-.theme-toggle {
-  width: 100%;
-  margin-top: 2rem;
-  background-color: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  text-align: center;
 }
 
 .navigation {
@@ -244,7 +297,7 @@ If you are developing a production application, we recommend using TypeScript wi
 
 .nav-link {
   text-decoration: none;
-  color: var(--text-secondary); /* Use variable */
+  color: var(--text-secondary);
   padding: 10px 15px;
   border-radius: 6px;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
@@ -252,13 +305,27 @@ If you are developing a production application, we recommend using TypeScript wi
 }
 
 .nav-link:hover {
-  background-color: var(--border-color); /* Use variable */
+  background-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 .nav-link.active {
-  background-color: var(--active-nav-bg); /* Use variable */
-  color: var(--color-primary); /* Use variable */
+  background-color: var(--active-nav-bg);
+  color: var(--color-primary);
   font-weight: bold;
+}
+
+/* This pushes the button to the bottom of the sidebar */
+.theme-toggle {
+  margin-top: auto;
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  text-align: center;
+}
+.theme-toggle:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
 }
 
 .content-area {
@@ -267,32 +334,100 @@ If you are developing a production application, we recommend using TypeScript wi
   max-width: 800px;
 }
 
+/* --- Component-Specific Styles --- */
+
+h2 {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
 hr {
   border: none;
-  border-top: 1px solid var(--border-color); /* Use variable */
+  border-top: 1px solid var(--border-color);
   margin: 2rem 0;
 }
 
 .market-update-row {
-  border: 1px solid var(--border-color); /* Use variable */
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 2rem; /* Increased padding */
   margin-bottom: 1.5rem;
-  background-color: var(--background-primary); /* Use variable */
+  background-color: var(--background-primary);
   position: relative;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); /* Subtle shadow */
 }
 
 .market-update-row h4 {
   margin-top: 0;
+  color: var(--text-primary);
 }
 
 .remove-button {
   position: absolute;
   top: 1.5rem;
   right: 1.5rem;
-  background-color: var(--button-remove-bg); /* Use variable */
-  color: var(--button-remove-text); /* Use variable */
-  border: 1px solid var(--button-remove-border); /* Use variable */
+  background-color: var(--button-remove-bg);
+  color: var(--button-remove-text);
+  border: 1px solid var(--button-remove-border);
+  padding: 0.5rem 1rem; /* Adjust padding for smaller button */
+}
+.remove-button:hover {
+  opacity: 0.8;
+}
+
+.result-box {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  background-color: var(--background-secondary);
+}
+
+.result-box h3 {
+  margin-top: 0;
+}
+
+.result-box textarea {
+  background-color: var(--background-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+  color: var(--text-primary);
+}
+
+/* src/App.css */
+
+/* ... (all your existing styles) ... */
+
+/* --- Styles for the new ProposalTitleInput component --- */
+.proposal-title-builder {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+  background-color: var(--background-secondary);
+}
+
+.title-prefix-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.title-hash {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+  padding: 0 0.5rem;
+}
+
+.title-number-input {
+  width: 80px; /* Give the number input a fixed, smaller width */
 }
 </file>
 
@@ -358,24 +493,39 @@ export default App;
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
 </file>
 
-<file path="src/contracts/abis.js">
-// src/contracts/abis.js
+<file path="src/context/ThemeContext.jsx">
+// src/context/ThemeContext.jsx
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// This is the "user manual" for the main Governor contract.
-// It tells ethers.js how to format the createProposal function call.
-export const governorABI = [
-  "function createProposal(address[] targets, uint256[] values, bytes[] calldatas, string description)"
-];
+// Create the context
+const ThemeContext = createContext();
 
-// This is the "user manual" for the Comptroller contract.
-export const comptrollerABI = [
-  "function _setCollateralFactor(address mToken, uint newCollateralFactorMantissa)"
-];
+// Create a provider component
+export const ThemeProvider = ({ children }) => {
+  // State to hold the current theme. It reads from localStorage to remember the user's choice.
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
-// This is the "user manual" for all MToken contracts.
-export const mTokenABI = [
-  "function _setReserveFactor(uint newReserveFactorMantissa)"
-];
+  useEffect(() => {
+    // Apply the theme to the body element whenever it changes
+    document.body.setAttribute('data-theme', theme);
+    // Save the user's choice in localStorage
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // Function to toggle the theme
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+// Create a custom hook to easily use the theme context
+export const useTheme = () => useContext(ThemeContext);
 </file>
 
 <file path="src/contracts/addresses.js">
@@ -403,7 +553,7 @@ export const MTOKEN_ADDRESSES = {
 </file>
 
 <file path="src/index.css">
-/* src/index.css - UPDATED WITH CSS VARIABLES FOR THEMEING */
+/* src/index.css - UPGRADED WITH POLISHED FORM STYLES */
 
 /* 1. Define color variables for the default (light) theme */
 :root {
@@ -418,7 +568,8 @@ export const MTOKEN_ADDRESSES = {
   --text-secondary: #6B7280;
   --color-primary: #007BFF;
   --color-primary-hover: #0056b3;
-  --border-color: #E5E7EB;
+  --border-color: #D1D5DB; /* Made slightly darker for better contrast */
+  --focus-ring-color: rgba(0, 123, 255, 0.25);
   --active-nav-bg: #F0F7FF;
   --button-remove-bg: #FFF1F1;
   --button-remove-text: #D92D20;
@@ -428,13 +579,14 @@ export const MTOKEN_ADDRESSES = {
 /* 2. Define overrides for the dark theme */
 body[data-theme='dark'] {
   /* Dark Theme Palette */
-  --background-primary: #111827;
-  --background-secondary: #1F2937;
+  --background-primary: #1F2937;
+  --background-secondary: #111827;
   --text-primary: #F9FAFB;
   --text-secondary: #9CA3AF;
-  --color-primary: #3B82F6; /* A slightly brighter blue for dark mode */
+  --color-primary: #3B82F6;
   --color-primary-hover: #60A5FA;
-  --border-color: #374151;
+  --border-color: #4B5563;
+  --focus-ring-color: rgba(59, 130, 246, 0.3);
   --active-nav-bg: #1E40AF;
   --button-remove-bg: #402329;
   --button-remove-text: #F87171;
@@ -452,7 +604,80 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ... (Keep your @font-face rules here as they were) ... */
+/* 4. Global Form Element Styling */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500; /* Medium weight for labels */
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+input[type="text"],
+select,
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 1rem;
+  font-family: 'GT America', sans-serif;
+}
+
+/* Crucial for UX: Add a focus ring to show which element is active */
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring-color);
+}
+
+/* 5. Global Button Styling */
+button {
+  font-family: 'GT America', sans-serif;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+.generate-button {
+  background-color: var(--color-primary);
+  color: white;
+  width: 100%;
+  font-size: 1.1rem;
+}
+.generate-button:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.add-button {
+  width: 100%;
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px dashed var(--border-color);
+}
+.add-button:hover {
+  background-color: var(--background-primary);
+  border-color: var(--color-primary);
+}
+
+/* Font face rules */
 @font-face {
   font-family: 'GT America';
   src: url('/fonts/GT-America-Standard-Regular.woff') format('woff');
@@ -474,14 +699,19 @@ body {
 </file>
 
 <file path="src/main.jsx">
+// src/main.jsx
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import { ThemeProvider } from './context/ThemeContext' // Import the provider
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    {/* Wrap the entire App in the ThemeProvider */}
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
   </StrictMode>,
 )
 </file>
@@ -646,6 +876,33 @@ function CustomProposalPage() {
   );
 }
 
+// ... other imports
+import ProposalTitleInput from '../components/ProposalTitleInput'; // 1. Import
+
+function CustomProposalPage() {
+  // 2. The proposalTitle state is already here.
+  const [proposalTitle, setProposalTitle] = useState('');
+  // ... other state
+
+  // ... other functions
+
+  return (
+    <div>
+      {/* ... */}
+      <form onSubmit={handleGenerate}>
+        <div className="form-group">
+          <label>Proposal Title</label>
+          {/* 3. Replace the old input with the new component */}
+          <ProposalTitleInput onTitleChange={setProposalTitle} />
+        </div>
+        <hr />
+        {/* ... rest of the form */}
+      </form>
+      {/* ... */}
+    </div>
+  );
+}
+
 export default CustomProposalPage;
 </file>
 
@@ -672,279 +929,73 @@ export default InstructionsPage;
 </file>
 
 <file path="src/pages/MarketCreationPage.jsx">
-// src/pages/MarketCreationPage.jsx - PHASE 1: PROPOSAL KIT GENERATOR
+// src/pages/CustomProposalPage.jsx - CORRECTED
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
+import { GOVERNOR_ADDRESS } from '../contracts/addresses.js';
+import ProposalTitleInput from '../components/ProposalTitleInput.jsx'; // Import the new component
 
-// Helper function to trigger a file download in the browser
-const downloadFile = (content, fileName, contentType) => {
-  const blob = new Blob([content], { type: contentType });
-  const href = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = href;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(href);
-};
+// ... (downloadFile helper is correct and unchanged)
 
-// Helper function to generate the markdown content for the new market proposal
-const generateMarketCreationMarkdown = (title, params) => {
-  return `
-${title}
-
-## Summary
-
-This proposal is to list the ${params.symbol} token on Moonwell Artemis (Base). This will diversify the assets available on the platform and provide new opportunities for users.
-
-## Motivation
-
-Listing ${params.symbol} will enhance the utility of the Moonwell protocol by adding a new, in-demand asset. The initial risk parameters have been carefully selected based on a thorough analysis of the asset's market capitalization, liquidity, and volatility to ensure the safety of the protocol.
-
-## Specifications
-
-The following asset will be added to the protocol with the specified parameters:
-
-*   **Token:** ${params.symbol}
-*   **mToken Name:** ${params.name}
-*   **mToken Symbol:** ${params.addressesString}
-*   **Underlying Address:** \`${params.tokenAddressName}\`
-*   **Price Feed Address:** \`${params.priceFeedName}\`
-
-### Risk Parameters
-*   **Collateral Factor:** \`${params.collateralFactor}\`
-*   **Reserve Factor:** \`${params.reserveFactor}\`
-*   **Supply Cap:** \`${params.supplyCap}\`
-*   **Borrow Cap:** \`${params.borrowCap}\`
-*   **Protocol Seize Share:** \`${params.seizeShare}\`
-
-### Interest Rate Model (Jump Rate Model)
-*   **Base Rate Per Year:** \`${params.jrm.baseRatePerYear}\`
-*   **Multiplier Per Year (Slope 1):** \`${params.jrm.multiplierPerYear}\`
-*   **Kink (Utilization Threshold):** \`${params.jrm.kink}\`
-*   **Jump Multiplier Per Year (Slope 2):** \`${params.jrm.jumpMultiplierPerYear}\`
-
-## On-Chain Actions
-
-A developer will use the generated \`new-market.json\` file with the official Moonwell proposal scripts to execute the on-chain transactions required to deploy and configure this new market.
-  `;
-};
-
-
-function MarketCreationPage() {
-  // State to hold all form data in a structure that matches our target JSON
-  const [marketParams, setMarketParams] = useState({
-    addressesString: 'MOONWELL_NEWTOKEN',
-    borrowCap: '1000000',
-    collateralFactor: '0.75',
-    initialMintAmount: '100',
-    name: 'Moonwell NEWTOKEN',
-    priceFeedName: 'CHAINLINK_NEWTOKEN_USD', // This is a placeholder name for the address book
-    reserveFactor: '0.15',
-    seizeShare: '0.01',
-    supplyCap: '2000000',
-    symbol: 'NEWTOKEN',
-    tokenAddressName: '0x...', // The underlying token address
-    jrm: {
-      baseRatePerYear: '0.02',
-      jumpMultiplierPerYear: '2.5',
-      kink: '0.8',
-      multiplierPerYear: '0.1',
-    },
-  });
-
-  const [proposalTitle, setProposalTitle] = useState('# MIP-BXX: List NEWTOKEN on Moonwell');
+function CustomProposalPage() {
+  const [proposalTitle, setProposalTitle] = useState(''); // State for the title
+  const [actions, setActions] = useState([
+    { target: '', func: '', args: '', value: '0' }
+  ]);
   
-  // State for the generated file content
-  const [generatedJson, setGeneratedJson] = useState('');
-  const [generatedMarkdown, setGeneratedMarkdown] = useState('');
+  const [generatedCalldata, setGeneratedCalldata] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
 
-  // Handler to update nested state (e.g., for JRM params)
-  const handleParamChange = (e) => {
-    const { name, value } = e.target;
-    const [parent, child] = name.split('.');
-
-    if (child) { // This is a nested property (e.g., 'jrm.baseRatePerYear')
-      setMarketParams(prevParams => ({
-        ...prevParams,
-        [parent]: {
-          ...prevParams[parent],
-          [child]: value,
-        }
-      }));
-    } else { // This is a top-level property
-      setMarketParams(prevParams => ({
-        ...prevParams,
-        [name]: value,
-      }));
-    }
-  };
+  // ... (handleActionChange, addAction, removeAction are correct and unchanged)
 
   const handleGenerate = (event) => {
     event.preventDefault();
-    setGeneratedJson('');
-    setGeneratedMarkdown('');
-
-    try {
-      setStatusMessage('Generating proposal kit...');
-
-      // Create a deep copy to format for the JSON output without changing the UI state
-      const formattedParams = JSON.parse(JSON.stringify(marketParams));
-
-      // Format numbers into 'wad' format (18 decimals) for the JSON file
-      formattedParams.collateralFactor = ethers.parseUnits(marketParams.collateralFactor, 18).toString();
-      formattedParams.reserveFactor = ethers.parseUnits(marketParams.reserveFactor, 18).toString();
-      formattedParams.seizeShare = ethers.parseUnits(marketParams.seizeShare, 18).toString();
-      formattedParams.jrm.baseRatePerYear = ethers.parseUnits(marketParams.jrm.baseRatePerYear, 18).toString();
-      formattedParams.jrm.multiplierPerYear = ethers.parseUnits(marketParams.jrm.multiplierPerYear, 18).toString();
-      formattedParams.jrm.jumpMultiplierPerYear = ethers.parseUnits(marketParams.jrm.jumpMultiplierPerYear, 18).toString();
-      formattedParams.jrm.kink = ethers.parseUnits(marketParams.jrm.kink, 18).toString();
-      
-      // Note: Supply/Borrow caps are formatted based on the underlying token's decimals, 
-      // which we don't know here. The developer running the script will handle this.
-      // We will pass the human-readable string.
-
-      const paramsJson = {
-        "8453": [formattedParams] // Hardcoded for Base network
-      };
-      setGeneratedJson(JSON.stringify(paramsJson, null, 2));
-
-      // Generate the Markdown content using the original, human-readable state
-      const markdownContent = generateMarketCreationMarkdown(proposalTitle, marketParams);
-      setGeneratedMarkdown(markdownContent);
-
-      setStatusMessage('Proposal kit generated successfully!');
-    } catch (error) {
-      console.error("Failed to generate kit:", error);
-      setStatusMessage(`Error: ${error.message}`);
-    }
+    // ... (logic is correct, just ensure it uses `proposalTitle`)
+    const finalCalldata = governorInterface.encodeFunctionData("propose", [
+      allTargets,
+      allValues,
+      allCalldatas,
+      proposalTitle // Use the state variable here
+    ]);
+    // ...
   };
 
   return (
     <div>
-      <h2>Market Creation Assistant</h2>
-      <p>Fill out this form to generate a "Proposal Kit" for listing a new asset. This kit includes the necessary JSON and Markdown files for a developer to submit the proposal on-chain.</p>
+      <h2>Custom Proposal Generator</h2>
+      <p>This is an advanced tool...</p>
       
       <form onSubmit={handleGenerate}>
-        {/* --- PROPOSAL DETAILS --- */}
-        <h3>Proposal Details</h3>
         <div className="form-group">
           <label>Proposal Title</label>
-          <input type="text" value={proposalTitle} onChange={(e) => setProposalTitle(e.target.value)} required />
+          {/* Replace the old input with the new component */}
+          <ProposalTitleInput onTitleChange={setProposalTitle} />
         </div>
-
-        {/* --- TOKEN & MARKET DETAILS --- */}
-        <h3>Token & Market Details</h3>
-        <div className="form-group">
-          <label>Underlying Token Address</label>
-          <input type="text" name="tokenAddressName" value={marketParams.tokenAddressName} onChange={handleParamChange} placeholder="0x..." required />
-        </div>
-        <div className="form-group">
-          <label>Underlying Token Symbol (e.g., "WBTC")</label>
-          <input type="text" name="symbol" value={marketParams.symbol} onChange={handleParamChange} placeholder="WBTC" required />
-        </div>
-        <div className="form-group">
-          <label>mToken Name (e.g., "Moonwell Wrapped Bitcoin")</label>
-          <input type="text" name="name" value={marketParams.name} onChange={handleParamChange} placeholder="Moonwell Wrapped Bitcoin" required />
-        </div>
-        <div className="form-group">
-          <label>mToken Symbol (e.g., "mWBTC")</label>
-          <input type="text" name="addressesString" value={marketParams.addressesString} onChange={handleParamChange} placeholder="mWBTC" required />
-        </div>
-        <div className="form-group">
-          <label>Price Feed Name (for Address Book, e.g., "CHAINLINK_WBTC_USD")</label>
-          <input type="text" name="priceFeedName" value={marketParams.priceFeedName} onChange={handleParamChange} placeholder="CHAINLINK_WBTC_USD" required />
-        </div>
-
-        {/* --- RISK PARAMETERS --- */}
-        <h3>Risk Parameters</h3>
-        <div className="form-group">
-          <label>Supply Cap (in full units, e.g., 2000)</label>
-          <input type="text" name="supplyCap" value={marketParams.supplyCap} onChange={handleParamChange} placeholder="2000" required />
-        </div>
-        <div className="form-group">
-          <label>Borrow Cap (in full units, e.g., 1000)</label>
-          <input type="text" name="borrowCap" value={marketParams.borrowCap} onChange={handleParamChange} placeholder="1000" required />
-        </div>
-        <div className="form-group">
-          <label>Collateral Factor (e.g., 0.75 for 75%)</label>
-          <input type="text" name="collateralFactor" value={marketParams.collateralFactor} onChange={handleParamChange} placeholder="0.75" required />
-        </div>
-        <div className="form-group">
-          <label>Reserve Factor (e.g., 0.15 for 15%)</label>
-          <input type="text" name="reserveFactor" value={marketParams.reserveFactor} onChange={handleParamChange} placeholder="0.15" required />
-        </div>
-        <div className="form-group">
-          <label>Protocol Seize Share (e.g., 0.01 for 1%)</label>
-          <input type="text" name="seizeShare" value={marketParams.seizeShare} onChange={handleParamChange} placeholder="0.01" required />
-        </div>
-        <div className="form-group">
-          <label>Initial Mint Amount (a small amount to seed the market)</label>
-          <input type="text" name="initialMintAmount" value={marketParams.initialMintAmount} onChange={handleParamChange} placeholder="100" required />
-        </div>
-
-        {/* --- INTEREST RATE MODEL --- */}
-        <h3>Interest Rate Model Parameters</h3>
-        <div className="form-group">
-          <label>Base Rate Per Year (e.g., 0.02 for 2%)</label>
-          <input type="text" name="jrm.baseRatePerYear" value={marketParams.jrm.baseRatePerYear} onChange={handleParamChange} placeholder="0.02" required />
-        </div>
-        <div className="form-group">
-          <label>Multiplier Per Year (Slope 1)</label>
-          <input type="text" name="jrm.multiplierPerYear" value={marketParams.jrm.multiplierPerYear} onChange={handleParamChange} placeholder="0.1" required />
-        </div>
-        <div className="form-group">
-          <label>Kink (Utilization point where slope changes, e.g., 0.8 for 80%)</label>
-          <input type="text" name="jrm.kink" value={marketParams.jrm.kink} onChange={handleParamChange} placeholder="0.8" required />
-        </div>
-        <div className="form-group">
-          <label>Jump Multiplier Per Year (Slope 2)</label>
-          <input type="text" name="jrm.jumpMultiplierPerYear" value={marketParams.jrm.jumpMultiplierPerYear} onChange={handleParamChange} placeholder="2.5" required />
-        </div>
-
         <hr />
-        <button type="submit" className="generate-button">Generate Proposal Kit</button>
+
+        {/* ... (rest of the form is correct and unchanged) ... */}
       </form>
 
-      {statusMessage && <p className="status-message">{statusMessage}</p>}
-
-      {generatedJson && (
-        <div className="result-box">
-          <h3>new-market.json</h3>
-          <p>Download this file and provide it to a developer for on-chain submission.</p>
-          <button onClick={() => downloadFile(generatedJson, 'new-market.json', 'application/json')}>
-            Download new-market.json
-          </button>
-          <textarea readOnly value={generatedJson} style={{ width: '100%', height: '250px', marginTop: '10px' }} />
-
-          <h3>proposal.md</h3>
-          <p>Download this file and use it as the body of the governance forum post.</p>
-          <button onClick={() => downloadFile(generatedMarkdown, 'proposal.md', 'text/markdown')}>
-            Download proposal.md
-          </button>
-          <textarea readOnly value={generatedMarkdown} style={{ width: '100%', height: '250px', marginTop: '10px' }} />
-        </div>
-      )}
+      {/* ... (rest of the component is correct and unchanged) ... */}
     </div>
   );
 }
 
-export default MarketCreationPage;
+export default CustomProposalPage;
 </file>
 
 <file path="src/pages/MarketUpdatePage.jsx">
-// src/pages/MarketUpdatePage.jsx - FULL ARTIFACTS + IRM UPDATES
+// src/pages/MarketUpdatePage.jsx - CORRECTED
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { generateProposalData } from '../utils/proposalLogic.js';
 import { GOVERNOR_ADDRESS } from '../contracts/addresses.js';
+import ProposalTitleInput from '../components/ProposalTitleInput.jsx'; // Import the new component
 
-// VVVV  REPLACE THESE WITH YOUR ACTUAL GIST URLS VVVV
 const MARKETS_URL = 'https://gist.githubusercontent.com/0xmims/7e9b2ceef27f5901bb0670ae9f6e0921/raw/803063c8e3368a86aec9b023694a66b1e5f5571e/markets.json';
 const IRMS_URL = 'https://gist.githubusercontent.com/0xmims/bd32a5e0edc77c6c0baed14f9db77108/raw/c1c0876ccb3e98f7ec6cbf2d100a280db5b2c4f0/irms.json';
 
+// ... (generateMarkdownContent and downloadFile helpers remain the same)
 const generateMarkdownContent = (title, updates, irmsList) => {
   const specifications = updates
     .map(update => {
@@ -997,10 +1048,11 @@ const downloadFile = (content, fileName, contentType) => {
   URL.revokeObjectURL(href);
 };
 
+
 function MarketUpdatePage() {
-  const [description, setDescription] = useState('');
+  const [proposalTitle, setProposalTitle] = useState(''); // Changed from 'description'
   const [markets, setMarkets] = useState([]);
-  const [irms, setIrms] = useState([]); // New state for IRMs
+  const [irms, setIrms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [marketUpdates, setMarketUpdates] = useState([]);
@@ -1011,59 +1063,10 @@ function MarketUpdatePage() {
   const [statusMessage, setStatusMessage] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      // Check for placeholder URLs
-      if (MARKETS_URL.includes('YourUsername') || IRMS_URL.includes('YourUsername')) {
-        setError("A Gist URL is still a placeholder. Please update it in MarketUpdatePage.jsx.");
-        setIsLoading(false);
-        return;
-      }
-      try {
-        // Fetch both markets and IRMs at the same time
-        const [marketsResponse, irmsResponse] = await Promise.all([
-          fetch(MARKETS_URL),
-          fetch(IRMS_URL)
-        ]);
-
-        if (!marketsResponse.ok) throw new Error(`Failed to fetch markets: ${marketsResponse.status}`);
-        if (!irmsResponse.ok) throw new Error(`Failed to fetch IRMs: ${irmsResponse.status}`);
-
-        const marketsData = await marketsResponse.json();
-        const irmsData = await irmsResponse.json();
-        
-        setMarkets(marketsData);
-        setIrms(irmsData);
-
-        if (marketsData.length > 0) {
-          // Initialize with the new 'irm' field
-          setMarketUpdates([{ market: marketsData[0].value, collateralFactor: '', reserveFactor: '', irm: '' }]);
-        }
-      } catch (e) {
-        setError(e.message);
-        console.error("Failed to fetch data:", e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
+    // ... (useEffect logic is correct and unchanged)
   }, []);
 
-  const addMarketUpdate = () => {
-    if (markets.length > 0) {
-      setMarketUpdates([...marketUpdates, { market: markets[0].value, collateralFactor: '', reserveFactor: '', irm: '' }]);
-    }
-  };
-
-  const removeMarketUpdate = (index) => {
-    const newUpdates = marketUpdates.filter((_, i) => i !== index);
-    setMarketUpdates(newUpdates);
-  };
-
-  const handleUpdateChange = (index, field, value) => {
-    const newUpdates = [...marketUpdates];
-    newUpdates[index][field] = value;
-    setMarketUpdates(newUpdates);
-  };
+  // ... (addMarketUpdate, removeMarketUpdate, handleUpdateChange are correct and unchanged)
 
   const handleGenerate = (event) => {
     event.preventDefault();
@@ -1071,36 +1074,19 @@ function MarketUpdatePage() {
     setGeneratedJson('');
     setGeneratedMarkdown('');
 
-    if (!description.startsWith('# ')) {
-      setStatusMessage('Error: Description must be a single line starting with "# "');
+    if (!proposalTitle.startsWith('# ')) { // Use proposalTitle
+      setStatusMessage('Error: Invalid proposal title generated.');
       return;
     }
 
     try {
       setStatusMessage('Generating proposal artifacts...');
       
-      const markdownContent = generateMarkdownContent(description, marketUpdates, irms);
+      const markdownContent = generateMarkdownContent(proposalTitle, marketUpdates, irms); // Use proposalTitle
       const proposalData = generateProposalData({ description: markdownContent, updates: marketUpdates });
       setGeneratedCalldata(proposalData.finalCalldata);
 
-      const paramsJson = {
-        "8453": {
-          "markets": marketUpdates
-            .filter(u => u.collateralFactor || u.reserveFactor || u.irm)
-            .map(u => ({
-              market: u.market,
-              collateralFactor: u.collateralFactor ? ethers.parseUnits(u.collateralFactor, 18).toString() : "-1",
-              reserveFactor: u.reserveFactor ? ethers.parseUnits(u.reserveFactor, 18).toString() : "-1",
-              jrm: u.irm ? irms.find(i => i.address === u.irm)?.name || "" : ""
-            }))
-        }
-      };
-      setGeneratedJson(JSON.stringify(paramsJson, (key, value) =>
-        typeof value === 'bigint' ? value.toString() : value, 2
-      ));
-      
-      setGeneratedMarkdown(markdownContent);
-      setStatusMessage('Proposal artifacts generated successfully!');
+      // ... (rest of the function is correct and unchanged)
     } catch (error) {
       console.error("Failed to generate artifacts:", error);
       setStatusMessage(`Error: ${error.message}`);
@@ -1116,62 +1102,21 @@ function MarketUpdatePage() {
       <p>Use this form to generate all necessary artifacts for a governance proposal.</p>
       <form onSubmit={handleGenerate}>
         <div className="form-group">
-          <label>Proposal Title (Must start with # )</label>
-          <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="# MIP-BXX: Weekly Risk Parameter Updates" required />
+          <label>Proposal Title</label>
+          {/* Replace the old input with the new component */}
+          <ProposalTitleInput onTitleChange={setProposalTitle} />
         </div>
         <hr />
         {marketUpdates.map((update, index) => (
           <div key={index} className="market-update-row">
-            <h4>Market Update #{index + 1}</h4>
-            <div className="form-group">
-              <label>Market to Update</label>
-              <select value={update.market} onChange={(e) => handleUpdateChange(index, 'market', e.target.value)}>
-                {markets.map((market) => (<option key={market.value} value={market.value}>{market.name}</option>))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label>New Collateral Factor</label>
-              <input type="text" value={update.collateralFactor} onChange={(e) => handleUpdateChange(index, 'collateralFactor', e.target.value)} placeholder="e.g., 0.75 (leave blank for no change)" />
-            </div>
-            <div className="form-group">
-              <label>New Reserve Factor</label>
-              <input type="text" value={update.reserveFactor} onChange={(e) => handleUpdateChange(index, 'reserveFactor', e.target.value)} placeholder="e.g., 0.15 (leave blank for no change)" />
-            </div>
-            {/* NEW DROPDOWN FOR IRM */}
-            <div className="form-group">
-              <label>New Interest Rate Model</label>
-              <select value={update.irm} onChange={(e) => handleUpdateChange(index, 'irm', e.target.value)}>
-                <option value="">-- No Change --</option>
-                {irms.map((irm) => (<option key={irm.address} value={irm.address}>{irm.name}</option>))}
-              </select>
-            </div>
-            <button type="button" onClick={() => removeMarketUpdate(index)} className="remove-button">Remove</button>
+            {/* ... (rest of the form is correct and unchanged) ... */}
           </div>
         ))}
         <button type="button" onClick={addMarketUpdate} className="add-button">+ Add Another Market Update</button>
         <hr />
         <button type="submit" className="generate-button">Generate Proposal Artifacts</button>
       </form>
-      {statusMessage && <p className="status-message">{statusMessage}</p>}
-      
-      {generatedCalldata && (
-        <div className="result-box">
-          <h3>Proposal.md</h3>
-          <p>Download this file and use it as the body of the governance forum post.</p>
-          <button onClick={() => downloadFile(generatedMarkdown, 'proposal.md', 'text/markdown')}>Download proposal.md</button>
-          <textarea readOnly value={generatedMarkdown} style={{ width: '100%', height: '200px', marginTop: '10px' }} />
-
-          <h3>Parameters.json</h3>
-          <p>This file is used by developers with the command-line tools for verification.</p>
-          <button onClick={() => downloadFile(generatedJson, 'parameters.json', 'application/json')}>Download parameters.json</button>
-          <textarea readOnly value={generatedJson} style={{ width: '100%', height: '150px', marginTop: '10px' }} />
-
-          <h3>On-Chain Calldata</h3>
-          <p>Copy the text below and paste it into the "Hex Data" field when submitting the proposal on-chain via Moonscan.</p>
-          <p><strong>Governor Address:</strong> {GOVERNOR_ADDRESS}</p>
-          <textarea readOnly value={generatedCalldata} style={{ width: '100%', height: '150px', marginTop: '10px' }} onClick={(e) => e.target.select()} />
-        </div>
-      )}
+      {/* ... (rest of the component is correct and unchanged) ... */}
     </div>
   );
 }
@@ -1267,6 +1212,28 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
 })
+</file>
+
+<file path="src/contracts/abis.js">
+// src/contracts/abis.js
+
+// This is the "user manual" for the main Governor contract.
+// It tells ethers.js how to format the createProposal function call.
+export const governorABI = [
+  "function createProposal(address[] targets, uint256[] values, bytes[] calldatas, string description)"
+];
+
+// This is the "user manual" for the Comptroller contract.
+export const comptrollerABI = [
+  "function _setCollateralFactor(address mToken, uint newCollateralFactorMantissa)"
+];
+
+// This is the "user manual" for all MToken contracts.
+export const mTokenABI = [
+  "function _setReserveFactor(uint newReserveFactorMantissa)",
+  // VVVV  ADD THIS MISSING LINE  VVVV
+  "function _setInterestRateModel(address newInterestRateModel)"
+];
 </file>
 
 </files>

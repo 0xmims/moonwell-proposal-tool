@@ -1,10 +1,10 @@
-// src/pages/MarketUpdatePage.jsx - FULL ARTIFACTS + IRM UPDATES
+// src/pages/MarketUpdatePage.jsx - CORRECTED
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { generateProposalData } from '../utils/proposalLogic.js';
 import { GOVERNOR_ADDRESS } from '../contracts/addresses.js';
+import ProposalTitleInput from '../components/ProposalTitleInput.jsx';
 
-// VVVV  REPLACE THESE WITH YOUR ACTUAL GIST URLS VVVV
 const MARKETS_URL = 'https://gist.githubusercontent.com/0xmims/7e9b2ceef27f5901bb0670ae9f6e0921/raw/803063c8e3368a86aec9b023694a66b1e5f5571e/markets.json';
 const IRMS_URL = 'https://gist.githubusercontent.com/0xmims/bd32a5e0edc77c6c0baed14f9db77108/raw/c1c0876ccb3e98f7ec6cbf2d100a280db5b2c4f0/irms.json';
 
@@ -61,9 +61,9 @@ const downloadFile = (content, fileName, contentType) => {
 };
 
 function MarketUpdatePage() {
-  const [description, setDescription] = useState('');
+  const [proposalTitle, setProposalTitle] = useState('');
   const [markets, setMarkets] = useState([]);
-  const [irms, setIrms] = useState([]); // New state for IRMs
+  const [irms, setIrms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [marketUpdates, setMarketUpdates] = useState([]);
@@ -75,14 +75,12 @@ function MarketUpdatePage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Check for placeholder URLs
       if (MARKETS_URL.includes('YourUsername') || IRMS_URL.includes('YourUsername')) {
         setError("A Gist URL is still a placeholder. Please update it in MarketUpdatePage.jsx.");
         setIsLoading(false);
         return;
       }
       try {
-        // Fetch both markets and IRMs at the same time
         const [marketsResponse, irmsResponse] = await Promise.all([
           fetch(MARKETS_URL),
           fetch(IRMS_URL)
@@ -98,7 +96,6 @@ function MarketUpdatePage() {
         setIrms(irmsData);
 
         if (marketsData.length > 0) {
-          // Initialize with the new 'irm' field
           setMarketUpdates([{ market: marketsData[0].value, collateralFactor: '', reserveFactor: '', irm: '' }]);
         }
       } catch (e) {
@@ -134,15 +131,15 @@ function MarketUpdatePage() {
     setGeneratedJson('');
     setGeneratedMarkdown('');
 
-    if (!description.startsWith('# ')) {
-      setStatusMessage('Error: Description must be a single line starting with "# "');
+    if (!proposalTitle.startsWith('# ')) {
+      setStatusMessage('Error: Invalid proposal title generated.');
       return;
     }
 
     try {
       setStatusMessage('Generating proposal artifacts...');
       
-      const markdownContent = generateMarkdownContent(description, marketUpdates, irms);
+      const markdownContent = generateMarkdownContent(proposalTitle, marketUpdates, irms);
       const proposalData = generateProposalData({ description: markdownContent, updates: marketUpdates });
       setGeneratedCalldata(proposalData.finalCalldata);
 
@@ -179,8 +176,8 @@ function MarketUpdatePage() {
       <p>Use this form to generate all necessary artifacts for a governance proposal.</p>
       <form onSubmit={handleGenerate}>
         <div className="form-group">
-          <label>Proposal Title (Must start with # )</label>
-          <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="# MIP-BXX: Weekly Risk Parameter Updates" required />
+          <label>Proposal Title</label>
+          <ProposalTitleInput onTitleChange={setProposalTitle} />
         </div>
         <hr />
         {marketUpdates.map((update, index) => (
@@ -200,7 +197,6 @@ function MarketUpdatePage() {
               <label>New Reserve Factor</label>
               <input type="text" value={update.reserveFactor} onChange={(e) => handleUpdateChange(index, 'reserveFactor', e.target.value)} placeholder="e.g., 0.15 (leave blank for no change)" />
             </div>
-            {/* NEW DROPDOWN FOR IRM */}
             <div className="form-group">
               <label>New Interest Rate Model</label>
               <select value={update.irm} onChange={(e) => handleUpdateChange(index, 'irm', e.target.value)}>

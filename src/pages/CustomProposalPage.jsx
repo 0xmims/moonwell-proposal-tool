@@ -1,9 +1,9 @@
-// src/pages/CustomProposalPage.jsx - ADVANCED CALldata GENERATOR
+// src/pages/CustomProposalPage.jsx - CORRECTED
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { GOVERNOR_ADDRESS } from '../contracts/addresses.js';
+import ProposalTitleInput from '../components/ProposalTitleInput.jsx';
 
-// Helper function to trigger a file download
 const downloadFile = (content, fileName, contentType) => {
   const blob = new Blob([content], { type: contentType });
   const href = URL.createObjectURL(blob);
@@ -17,8 +17,7 @@ const downloadFile = (content, fileName, contentType) => {
 };
 
 function CustomProposalPage() {
-  const [proposalTitle, setProposalTitle] = useState('# MIP-BXX: Custom On-Chain Actions');
-  // State to hold an array of action objects
+  const [proposalTitle, setProposalTitle] = useState('');
   const [actions, setActions] = useState([
     { target: '', func: '', args: '', value: '0' }
   ]);
@@ -26,19 +25,16 @@ function CustomProposalPage() {
   const [generatedCalldata, setGeneratedCalldata] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
 
-  // Handles changes for any field in any action row
   const handleActionChange = (index, field, value) => {
     const newActions = [...actions];
     newActions[index][field] = value;
     setActions(newActions);
   };
 
-  // Adds a new, empty action row to the form
   const addAction = () => {
     setActions([...actions, { target: '', func: '', args: '', value: '0' }]);
   };
 
-  // Removes an action row by its index
   const removeAction = (index) => {
     const newActions = actions.filter((_, i) => i !== index);
     setActions(newActions);
@@ -59,11 +55,8 @@ function CustomProposalPage() {
           throw new Error(`Invalid Target Address: ${action.target}`);
         }
 
-        // Create an ethers Interface from the user-provided function signature
         const iface = new ethers.Interface([`function ${action.func}`]);
         const functionFragment = iface.fragments[0];
-
-        // Parse the arguments from the textarea (one per line)
         const args = action.args.split('\n').map(arg => arg.trim()).filter(Boolean);
 
         allTargets.push(action.target);
@@ -71,7 +64,6 @@ function CustomProposalPage() {
         allCalldatas.push(iface.encodeFunctionData(functionFragment, args));
       }
 
-      // Bundle the encoded actions into the final `propose` calldata
       const governorInterface = new ethers.Interface([
         "function propose(address[],uint256[],bytes[],string)"
       ]);
@@ -100,7 +92,7 @@ function CustomProposalPage() {
       <form onSubmit={handleGenerate}>
         <div className="form-group">
           <label>Proposal Title</label>
-          <input type="text" value={proposalTitle} onChange={(e) => setProposalTitle(e.target.value)} required />
+          <ProposalTitleInput onTitleChange={setProposalTitle} />
         </div>
         <hr />
 

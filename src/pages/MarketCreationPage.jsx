@@ -1,8 +1,8 @@
-// src/pages/MarketCreationPage.jsx - PHASE 1: PROPOSAL KIT GENERATOR
+// src/pages/MarketCreationPage.jsx - CORRECTED
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
+import ProposalTitleInput from '../components/ProposalTitleInput.jsx';
 
-// Helper function to trigger a file download in the browser
 const downloadFile = (content, fileName, contentType) => {
   const blob = new Blob([content], { type: contentType });
   const href = URL.createObjectURL(blob);
@@ -15,28 +15,24 @@ const downloadFile = (content, fileName, contentType) => {
   URL.revokeObjectURL(href);
 };
 
-// Helper function to generate the markdown content for the new market proposal
 const generateMarketCreationMarkdown = (title, params) => {
   return `
 ${title}
 
 ## Summary
-
 This proposal is to list the ${params.symbol} token on Moonwell Artemis (Base). This will diversify the assets available on the platform and provide new opportunities for users.
 
 ## Motivation
-
 Listing ${params.symbol} will enhance the utility of the Moonwell protocol by adding a new, in-demand asset. The initial risk parameters have been carefully selected based on a thorough analysis of the asset's market capitalization, liquidity, and volatility to ensure the safety of the protocol.
 
 ## Specifications
-
 The following asset will be added to the protocol with the specified parameters:
 
 *   **Token:** ${params.symbol}
 *   **mToken Name:** ${params.name}
 *   **mToken Symbol:** ${params.addressesString}
 *   **Underlying Address:** \`${params.tokenAddressName}\`
-*   **Price Feed Address:** \`${params.priceFeedName}\`
+*   **Price Feed Name:** \`${params.priceFeedName}\`
 
 ### Risk Parameters
 *   **Collateral Factor:** \`${params.collateralFactor}\`
@@ -52,26 +48,23 @@ The following asset will be added to the protocol with the specified parameters:
 *   **Jump Multiplier Per Year (Slope 2):** \`${params.jrm.jumpMultiplierPerYear}\`
 
 ## On-Chain Actions
-
 A developer will use the generated \`new-market.json\` file with the official Moonwell proposal scripts to execute the on-chain transactions required to deploy and configure this new market.
   `;
 };
 
-
 function MarketCreationPage() {
-  // State to hold all form data in a structure that matches our target JSON
   const [marketParams, setMarketParams] = useState({
     addressesString: 'MOONWELL_NEWTOKEN',
     borrowCap: '1000000',
     collateralFactor: '0.75',
     initialMintAmount: '100',
     name: 'Moonwell NEWTOKEN',
-    priceFeedName: 'CHAINLINK_NEWTOKEN_USD', // This is a placeholder name for the address book
+    priceFeedName: 'CHAINLINK_NEWTOKEN_USD',
     reserveFactor: '0.15',
     seizeShare: '0.01',
     supplyCap: '2000000',
     symbol: 'NEWTOKEN',
-    tokenAddressName: '0x...', // The underlying token address
+    tokenAddressName: '0x...',
     jrm: {
       baseRatePerYear: '0.02',
       jumpMultiplierPerYear: '2.5',
@@ -80,19 +73,16 @@ function MarketCreationPage() {
     },
   });
 
-  const [proposalTitle, setProposalTitle] = useState('# MIP-BXX: List NEWTOKEN on Moonwell');
-  
-  // State for the generated file content
+  const [proposalTitle, setProposalTitle] = useState('');
   const [generatedJson, setGeneratedJson] = useState('');
   const [generatedMarkdown, setGeneratedMarkdown] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
 
-  // Handler to update nested state (e.g., for JRM params)
   const handleParamChange = (e) => {
     const { name, value } = e.target;
     const [parent, child] = name.split('.');
 
-    if (child) { // This is a nested property (e.g., 'jrm.baseRatePerYear')
+    if (child) {
       setMarketParams(prevParams => ({
         ...prevParams,
         [parent]: {
@@ -100,7 +90,7 @@ function MarketCreationPage() {
           [child]: value,
         }
       }));
-    } else { // This is a top-level property
+    } else {
       setMarketParams(prevParams => ({
         ...prevParams,
         [name]: value,
@@ -116,10 +106,8 @@ function MarketCreationPage() {
     try {
       setStatusMessage('Generating proposal kit...');
 
-      // Create a deep copy to format for the JSON output without changing the UI state
       const formattedParams = JSON.parse(JSON.stringify(marketParams));
 
-      // Format numbers into 'wad' format (18 decimals) for the JSON file
       formattedParams.collateralFactor = ethers.parseUnits(marketParams.collateralFactor, 18).toString();
       formattedParams.reserveFactor = ethers.parseUnits(marketParams.reserveFactor, 18).toString();
       formattedParams.seizeShare = ethers.parseUnits(marketParams.seizeShare, 18).toString();
@@ -128,16 +116,11 @@ function MarketCreationPage() {
       formattedParams.jrm.jumpMultiplierPerYear = ethers.parseUnits(marketParams.jrm.jumpMultiplierPerYear, 18).toString();
       formattedParams.jrm.kink = ethers.parseUnits(marketParams.jrm.kink, 18).toString();
       
-      // Note: Supply/Borrow caps are formatted based on the underlying token's decimals, 
-      // which we don't know here. The developer running the script will handle this.
-      // We will pass the human-readable string.
-
       const paramsJson = {
-        "8453": [formattedParams] // Hardcoded for Base network
+        "8453": [formattedParams]
       };
       setGeneratedJson(JSON.stringify(paramsJson, null, 2));
 
-      // Generate the Markdown content using the original, human-readable state
       const markdownContent = generateMarketCreationMarkdown(proposalTitle, marketParams);
       setGeneratedMarkdown(markdownContent);
 
@@ -154,14 +137,12 @@ function MarketCreationPage() {
       <p>Fill out this form to generate a "Proposal Kit" for listing a new asset. This kit includes the necessary JSON and Markdown files for a developer to submit the proposal on-chain.</p>
       
       <form onSubmit={handleGenerate}>
-        {/* --- PROPOSAL DETAILS --- */}
         <h3>Proposal Details</h3>
         <div className="form-group">
           <label>Proposal Title</label>
-          <input type="text" value={proposalTitle} onChange={(e) => setProposalTitle(e.target.value)} required />
+          <ProposalTitleInput onTitleChange={setProposalTitle} />
         </div>
 
-        {/* --- TOKEN & MARKET DETAILS --- */}
         <h3>Token & Market Details</h3>
         <div className="form-group">
           <label>Underlying Token Address</label>
@@ -184,7 +165,6 @@ function MarketCreationPage() {
           <input type="text" name="priceFeedName" value={marketParams.priceFeedName} onChange={handleParamChange} placeholder="CHAINLINK_WBTC_USD" required />
         </div>
 
-        {/* --- RISK PARAMETERS --- */}
         <h3>Risk Parameters</h3>
         <div className="form-group">
           <label>Supply Cap (in full units, e.g., 2000)</label>
@@ -211,7 +191,6 @@ function MarketCreationPage() {
           <input type="text" name="initialMintAmount" value={marketParams.initialMintAmount} onChange={handleParamChange} placeholder="100" required />
         </div>
 
-        {/* --- INTEREST RATE MODEL --- */}
         <h3>Interest Rate Model Parameters</h3>
         <div className="form-group">
           <label>Base Rate Per Year (e.g., 0.02 for 2%)</label>
@@ -240,16 +219,12 @@ function MarketCreationPage() {
         <div className="result-box">
           <h3>new-market.json</h3>
           <p>Download this file and provide it to a developer for on-chain submission.</p>
-          <button onClick={() => downloadFile(generatedJson, 'new-market.json', 'application/json')}>
-            Download new-market.json
-          </button>
+          <button onClick={() => downloadFile(generatedJson, 'new-market.json', 'application/json')}>Download new-market.json</button>
           <textarea readOnly value={generatedJson} style={{ width: '100%', height: '250px', marginTop: '10px' }} />
 
           <h3>proposal.md</h3>
           <p>Download this file and use it as the body of the governance forum post.</p>
-          <button onClick={() => downloadFile(generatedMarkdown, 'proposal.md', 'text/markdown')}>
-            Download proposal.md
-          </button>
+          <button onClick={() => downloadFile(generatedMarkdown, 'proposal.md', 'text/markdown')}>Download proposal.md</button>
           <textarea readOnly value={generatedMarkdown} style={{ width: '100%', height: '250px', marginTop: '10px' }} />
         </div>
       )}

@@ -136,3 +136,33 @@ hr {
   padding: 1rem;
   color: var(--text-primary);
 }
+
+/* src/App.css */
+
+/* ... (all your existing styles) ... */
+
+/* --- Styles for the new ProposalTitleInput component --- */
+.proposal-title-builder {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+  background-color: var(--background-secondary);
+}
+
+.title-prefix-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.title-hash {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+  padding: 0 0.5rem;
+}
+
+.title-number-input {
+  width: 80px; /* Give the number input a fixed, smaller width */
+}
