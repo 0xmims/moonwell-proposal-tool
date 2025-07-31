@@ -1,0 +1,138 @@
+/* src/App.css - UPGRADED LAYOUT STYLES */
+
+.App {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: var(--background-primary);
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  padding: 2rem;
+  border-right: 1px solid var(--border-color);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  background-color: var(--background-secondary);
+  /* Use flexbox to push the theme toggle to the bottom */
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  margin-bottom: 2.5rem;
+  padding-left: 10px;
+}
+
+.navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text-secondary);
+  padding: 10px 15px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.nav-link.active {
+  background-color: var(--active-nav-bg);
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+/* This pushes the button to the bottom of the sidebar */
+.theme-toggle {
+  margin-top: auto;
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  text-align: center;
+}
+.theme-toggle:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.content-area {
+  flex-grow: 1;
+  padding: 2rem 4rem;
+  max-width: 800px;
+}
+
+/* --- Component-Specific Styles --- */
+
+h2 {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 2rem 0;
+}
+
+.market-update-row {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 2rem; /* Increased padding */
+  margin-bottom: 1.5rem;
+  background-color: var(--background-primary);
+  position: relative;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); /* Subtle shadow */
+}
+
+.market-update-row h4 {
+  margin-top: 0;
+  color: var(--text-primary);
+}
+
+.remove-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background-color: var(--button-remove-bg);
+  color: var(--button-remove-text);
+  border: 1px solid var(--button-remove-border);
+  padding: 0.5rem 1rem; /* Adjust padding for smaller button */
+}
+.remove-button:hover {
+  opacity: 0.8;
+}
+
+.result-box {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  background-color: var(--background-secondary);
+}
+
+.result-box h3 {
+  margin-top: 0;
+}
+
+.result-box textarea {
+  background-color: var(--background-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 1rem;
+  color: var(--text-primary);
+}

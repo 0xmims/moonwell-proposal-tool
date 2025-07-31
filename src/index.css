@@ -1,0 +1,143 @@
+/* src/index.css - UPGRADED WITH POLISHED FORM STYLES */
+
+/* 1. Define color variables for the default (light) theme */
+:root {
+  font-family: 'GT America', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Light Theme Palette */
+  --background-primary: #FFFFFF;
+  --background-secondary: #F9FAFB;
+  --text-primary: #0D0D0D;
+  --text-secondary: #6B7280;
+  --color-primary: #007BFF;
+  --color-primary-hover: #0056b3;
+  --border-color: #D1D5DB; /* Made slightly darker for better contrast */
+  --focus-ring-color: rgba(0, 123, 255, 0.25);
+  --active-nav-bg: #F0F7FF;
+  --button-remove-bg: #FFF1F1;
+  --button-remove-text: #D92D20;
+  --button-remove-border: #FECDCA;
+}
+
+/* 2. Define overrides for the dark theme */
+body[data-theme='dark'] {
+  /* Dark Theme Palette */
+  --background-primary: #1F2937;
+  --background-secondary: #111827;
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --color-primary: #3B82F6;
+  --color-primary-hover: #60A5FA;
+  --border-color: #4B5563;
+  --focus-ring-color: rgba(59, 130, 246, 0.3);
+  --active-nav-bg: #1E40AF;
+  --button-remove-bg: #402329;
+  --button-remove-text: #F87171;
+  --button-remove-border: #5f333a;
+}
+
+/* 3. Apply base styles using the variables */
+body {
+  margin: 0;
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 4. Global Form Element Styling */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500; /* Medium weight for labels */
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+input[type="text"],
+select,
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 1rem;
+  font-family: 'GT America', sans-serif;
+}
+
+/* Crucial for UX: Add a focus ring to show which element is active */
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring-color);
+}
+
+/* 5. Global Button Styling */
+button {
+  font-family: 'GT America', sans-serif;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+.generate-button {
+  background-color: var(--color-primary);
+  color: white;
+  width: 100%;
+  font-size: 1.1rem;
+}
+.generate-button:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.add-button {
+  width: 100%;
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px dashed var(--border-color);
+}
+.add-button:hover {
+  background-color: var(--background-primary);
+  border-color: var(--color-primary);
+}
+
+/* Font face rules */
+@font-face {
+  font-family: 'GT America';
+  src: url('/fonts/GT-America-Standard-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'GT America';
+  src: url('/fonts/GT-America-Standard-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'GT America Mono';
+  src: url('/fonts/GT-America-Mono-Light.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
